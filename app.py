@@ -1,3 +1,12 @@
+st.markdown("""
+### 🚀 Nexora SaaS
+
+A simple tool for sellers to manage products and orders.
+
+💰 Subscription: ₹199/month  
+📦 Customers pay sellers directly (UPI/COD)
+""")
+
 import streamlit as st
 from db import create_user, login_user
 import time
