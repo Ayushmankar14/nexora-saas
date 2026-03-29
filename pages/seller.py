@@ -1,28 +1,37 @@
 import streamlit as st
 import pandas as pd
 from db import get_orders_seller
+from streamlit_cookies_manager import EncryptedCookieManager
 
-# SESSION
-if "user" not in st.session_state or st.session_state.user is None:
-    st.switch_page("app.py")
+# 🍪 COOKIES
+cookies = EncryptedCookieManager(password="super-secret-key")
+if not cookies.ready():
     st.stop()
+
+# 🔐 SESSION CHECK
+if "user" not in st.session_state or st.session_state.user is None:
+    if "user_id" in cookies and "role" in cookies:
+        st.session_state.user = (int(cookies["user_id"]), "", "", cookies["role"], 0)
+    else:
+        st.switch_page("app.py")
+        st.stop()
 
 user = st.session_state.user
 seller_id = user[0]
-is_paid = user[4]
+is_paid = user[4] if len(user) > 4 else 0
 
 # 🚪 LOGOUT
 if st.sidebar.button("🚪 Logout"):
+    cookies.clear()
     st.session_state.user = None
     st.switch_page("app.py")
 
 st.title("📊 Seller Dashboard")
 
-# 🔒 LOCK SYSTEM
+# 🔒 FREE PLAN WARNING
 if not is_paid:
-    st.warning("🔒 You are on FREE plan (limit: 5 products)")
-
-    if st.button("🚀 Upgrade Now"):
+    st.warning("🔒 Free plan (limit: 5 products)")
+    if st.button("🚀 Upgrade"):
         st.switch_page("pages/subscribe.py")
 
 st.divider()
