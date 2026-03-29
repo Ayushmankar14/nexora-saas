@@ -1,13 +1,29 @@
 import streamlit as st
 from db import create_user, login_user
 import time
+from streamlit_cookies_manager import EncryptedCookieManager
 
-# ✅ PAGE CONFIG (TOP PE)
+# 🔐 PAGE CONFIG (TOP PE)
 st.set_page_config(page_title="Nexora SaaS", layout="centered")
 
-# ✅ SESSION INIT
+# 🍪 COOKIES SETUP
+cookies = EncryptedCookieManager(password="super-secret-key")
+
+if not cookies.ready():
+    st.stop()
+
+# 🧠 SESSION INIT
 if "user" not in st.session_state:
     st.session_state.user = None
+
+# 🔄 AUTO LOGIN FROM COOKIES
+if st.session_state.user is None:
+    if "user_id" in cookies and "role" in cookies:
+        user_id = int(cookies["user_id"])
+        role = cookies["role"]
+
+        # basic user tuple (safe fallback)
+        st.session_state.user = (user_id, "", "", role, 0)
 
 # 🎨 CSS
 st.markdown("""
@@ -23,7 +39,7 @@ button[kind="primary"] {
 </style>
 """, unsafe_allow_html=True)
 
-# 🧠 INTRO (RAZORPAY KE LIYE IMPORTANT)
+# 🧠 INTRO (IMPORTANT FOR RAZORPAY)
 st.markdown("""
 ### 🚀 Nexora SaaS
 
@@ -36,6 +52,16 @@ A simple tool for sellers to manage products and orders.
 # 🏷️ HEADER
 st.markdown("<h1 style='text-align:center; color:#facc15;'>📦 Nexora SaaS</h1>", unsafe_allow_html=True)
 
+# 🔁 IF ALREADY LOGGED IN → REDIRECT
+if st.session_state.user:
+    role = st.session_state.user[3]
+
+    if role == "Seller":
+        st.switch_page("pages/seller.py")
+    else:
+        st.switch_page("pages/customer.py")
+
+# 🔘 MENU
 menu = st.radio("Select Option", ["Login", "Signup"])
 
 username = st.text_input("Username")
@@ -66,6 +92,11 @@ if menu == "Login":
 
         if user:
             st.session_state.user = user
+
+            # 🍪 SAVE IN COOKIES
+            cookies["user_id"] = str(user[0])
+            cookies["role"] = user[3]
+            cookies.save()
 
             if user[3] == "Seller":
                 st.switch_page("pages/seller.py")
