@@ -1,13 +1,28 @@
 import streamlit as st
 import pandas as pd
 from db import get_orders_customer
+from streamlit_cookies_manager import EncryptedCookieManager
 
-# SESSION
-if "user" not in st.session_state or st.session_state.user is None:
-    st.switch_page("app.py")
+# 🍪 COOKIES
+cookies = EncryptedCookieManager(password="super-secret-key")
+if not cookies.ready():
     st.stop()
 
+# 🔐 SESSION
+if "user" not in st.session_state or st.session_state.user is None:
+    if "user_id" in cookies and "role" in cookies:
+        st.session_state.user = (int(cookies["user_id"]), "", "", cookies["role"], 0)
+    else:
+        st.switch_page("app.py")
+        st.stop()
+
 customer_id = st.session_state.user[0]
+
+# 🚪 LOGOUT
+if st.sidebar.button("🚪 Logout"):
+    cookies.clear()
+    st.session_state.user = None
+    st.switch_page("app.py")
 
 st.title("📦 My Orders")
 
