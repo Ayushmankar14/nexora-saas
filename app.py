@@ -1,21 +1,13 @@
-st.markdown("""
-### 🚀 Nexora SaaS
-
-A simple tool for sellers to manage products and orders.
-
-💰 Subscription: ₹199/month  
-📦 Customers pay sellers directly (UPI/COD)
-""")
-
 import streamlit as st
 from db import create_user, login_user
 import time
 
-# ✅ SESSION INIT (only once)
+# ✅ PAGE CONFIG (TOP PE)
+st.set_page_config(page_title="Nexora SaaS", layout="centered")
+
+# ✅ SESSION INIT
 if "user" not in st.session_state:
     st.session_state.user = None
-
-st.set_page_config(page_title="Nexora SaaS", layout="centered")
 
 # 🎨 CSS
 st.markdown("""
@@ -31,10 +23,20 @@ button[kind="primary"] {
 </style>
 """, unsafe_allow_html=True)
 
+# 🧠 INTRO (RAZORPAY KE LIYE IMPORTANT)
+st.markdown("""
+### 🚀 Nexora SaaS
+
+A simple tool for sellers to manage products and orders.
+
+💰 Subscription: ₹199/month  
+📦 Customers pay sellers directly (UPI/COD)
+""")
+
 # 🏷️ HEADER
 st.markdown("<h1 style='text-align:center; color:#facc15;'>📦 Nexora SaaS</h1>", unsafe_allow_html=True)
 
-menu = st.radio("", ["Login", "Signup"])
+menu = st.radio("Select Option", ["Login", "Signup"])
 
 username = st.text_input("Username")
 password = st.text_input("Password", type="password")
